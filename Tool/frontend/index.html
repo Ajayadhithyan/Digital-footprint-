@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Forensics Toolkit</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        },
+                        dark: {
+                            100: '#1e293b',
+                            200: '#334155',
+                            300: '#475569',
+                            400: '#64748b',
+                        }
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s linear infinite',
+                        'bounce-slow': 'bounce 2s infinite',
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        }
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        .glass-effect {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+        }
+        .sidebar-item {
+            transition: all 0.3s ease;
+        }
+        .sidebar-item:hover {
+            transform: translateX(5px);
+        }
+        .file-card {
+            transition: all 0.3s ease;
+        }
+        .file-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+        .security-high {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        .security-medium {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+        .security-low {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+        .progress-bar {
+            transition: width 1s ease-in-out;
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen text-white font-sans">
+    <!-- Login Screen -->
+    <div id="loginScreen" class="min-h-screen flex items-center justify-center px-4 py-12">
+        <div class="max-w-md w-full space-y-8">
+            <div class="text-center">
+                <div class="flex justify-center mb-6">
+                    <div class="relative">
+                        <div class="w-20 h-20 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-2xl flex items-center justify-center shadow-lg shadow-cyan-500/25">
+                            <i class="fas fa-shield-alt text-3xl text-white"></i>
+                        </div>
+                        <div class="absolute -top-1 -right-1 w-5 h-5 bg-green-400 rounded-full border-2 border-slate-900 animate-pulse"></div>
+                    </div>
+                </div>
+                <h2 class="text-4xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+                    Digital Forensics Toolkit
+                </h2>
+                <p class="mt-2 text-slate-400">Advanced file analysis and metadata extraction</p>
+            </div>
+
+            <div class="glass-effect rounded-2xl shadow-xl p-8">
+                <!-- Tab Toggle -->
+                <div class="flex mb-6 bg-slate-800/50 rounded-lg p-1">
+                    <button id="loginTab" onclick="showAuthForm('login')" class="flex-1 py-2 px-4 rounded-md bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-medium transition-all">
+                        Sign In
+                    </button>
+                    <button id="registerTab" onclick="showAuthForm('register')" class="flex-1 py-2 px-4 rounded-md text-slate-400 hover:text-white font-medium transition-all">
+                        Register
+                    </button>
+                </div>
+
+                <!-- Login Form -->
+                <form id="loginForm" class="space-y-6">
+                    <div id="loginError" class="hidden flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span class="text-sm" id="errorText">Invalid credentials</span>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">
+                            Username
+                        </label>
+                        <input
+                            id="username"
+                            type="text"
+                            required
+                            class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
+                            placeholder="Enter your username"
+                        >
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">
+                            Password
+                        </label>
+                        <div class="relative">
+                            <input
+                                id="password"
+                                type="password"
+                                required
+                                class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all pr-12"
+                                placeholder="Enter your password"
+                            >
+                            <button
+                                type="button"
+                                id="togglePassword"
+                                class="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-300 transition-colors"
+                            >
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button
+                        type="submit"
+                        id="loginButton"
+                        class="w-full py-3 px-4 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-medium rounded-lg transition-all duration-200 transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-slate-900"
+                    >
+                        <span id="loginButtonText">Sign in to Dashboard</span>
+                        <div id="loginSpinner" class="hidden flex items-center justify-center">
+                            <div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                            Signing in...
+                        </div>
+                    </button>
+
+                    <div class="text-center">
+                        <p class="text-slate-400 text-sm">
+                            Demo: <strong>admin</strong> / <strong>admin123</strong>
+                        </p>
+                    </div>
+                </form>
+
+                <!-- Register Form -->
+                <form id="registerForm" class="space-y-4 hidden">
+                    <div id="registerError" class="hidden flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span class="text-sm" id="registerErrorText"></span>
+                    </div>
+                    <div id="registerSuccess" class="hidden flex items-center gap-2 p-3 bg-green-500/10 border border-green-500/20 rounded-lg text-green-400">
+                        <i class="fas fa-check-circle"></i>
+                        <span class="text-sm">Registration successful! Please login.</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-2">
+                                Username <span class="text-red-400">*</span>
+                            </label>
+                            <input
+                                id="regUsername"
+                                type="text"
+                                required
+                                minlength="3"
+                                class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
+                                placeholder="Username"
+                            >
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-2">
+                                Full Name
+                            </label>
+                            <input
+                                id="regFullName"
+                                type="text"
+                                class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
+                                placeholder="John Doe"
+                            >
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">
+                            Email Address <span class="text-red-400">*</span>
+                        </label>
+                        <input
+                            id="regEmail"
+                            type="email"
+                            required
+                            class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
+                            placeholder="user@organization.com"
+                        >
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-2">
+                                Organization
+                            </label>
+                            <input
+                                id="regOrganization"
+                                type="text"
+                                class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
+                                placeholder="Department/Agency"
+                            >
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-2">
+                                Phone Number
+                            </label>
+                            <input
+                                id="regPhone"
+                                type="tel"
+                                class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
+                                placeholder="+1234567890"
+                            >
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">
+                            Password <span class="text-red-400">*</span>
+                        </label>
+                        <div class="relative">
+                            <input
+                                id="regPassword"
+                                type="password"
+                                required
+                                minlength="6"
+                                class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all pr-12"
+                                placeholder="Minimum 6 characters"
+                            >
+                            <button
+                                type="button"
+                                id="toggleRegPassword"
+                                class="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-300 transition-colors"
+                            >
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-1">Must be at least 6 characters</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">
+                            Confirm Password <span class="text-red-400">*</span>
+                        </label>
+                        <div class="relative">
+                            <input
+                                id="regConfirmPassword"
+                                type="password"
+                                required
+                                class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all pr-12"
+                                placeholder="Re-enter password"
+                            >
+                            <button
+                                type="button"
+                                id="toggleConfirmPassword"
+                                class="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-300 transition-colors"
+                            >
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button
+                        type="submit"
+                        id="registerButton"
+                        class="w-full py-3 px-4 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-medium rounded-lg transition-all duration-200 transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-slate-900"
+                    >
+                        <span id="registerButtonText">Create Account</span>
+                        <div id="registerSpinner" class="hidden flex items-center justify-center">
+                            <div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                            Creating account...
+                        </div>
+                    </button>
+                </form>
+            </div>
+
+            <div class="text-center text-slate-500 text-sm">
+                <p>Secure file analysis platform for digital forensics</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="appScreen" class="hidden min-h-screen">
+        <!-- Sidebar -->
+        <div class="fixed inset-y-0 left-0 w-64 glass-effect z-40 transform -translate-x-full lg:translate-x-0 transition duration-300 ease-in-out" id="sidebar">
+            <div class="flex items-center justify-center h-16 px-4 border-b border-slate-700">
+                <div class="flex items-center">
+                    <div class="w-8 h-8 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg flex items-center justify-center mr-2">
+                        <i class="fas fa-shield-alt text-white text-sm"></i>
+                    </div>
+                    <span class="text-xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">ForensicsTool</span>
+                </div>
+            </div>
+            <nav class="mt-8 px-4 space-y-2">
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-white bg-cyan-500/20 rounded-lg border-l-4 border-cyan-500" onclick="showSection('dashboard')">
+                    <i class="fas fa-tachometer-alt mr-3"></i>
+                    Dashboard
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-slate-300 hover:text-white hover:bg-slate-700/50 rounded-lg border-l-4 border-transparent" onclick="showSection('upload')">
+                    <i class="fas fa-upload mr-3"></i>
+                    Upload Files
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-slate-300 hover:text-white hover:bg-slate-700/50 rounded-lg border-l-4 border-transparent" onclick="showSection('files')">
+                    <i class="fas fa-folder mr-3"></i>
+                    File Browser
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-slate-300 hover:text-white hover:bg-slate-700/50 rounded-lg border-l-4 border-transparent" onclick="showSection('analytics')">
+                    <i class="fas fa-chart-bar mr-3"></i>
+                    Analytics
+                </a>
+            </nav>
+            <div class="absolute bottom-0 w-full p-4 border-t border-slate-700">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full flex items-center justify-center text-white font-bold" id="userAvatar">
+                        A
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-white font-medium" id="userName">Admin User</p>
+                        <p class="text-slate-400 text-sm" id="userRole">Administrator</p>
+                    </div>
+                    <button id="logoutButton" class="ml-auto text-slate-400 hover:text-white">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="lg:ml-64">
+            <!-- Top Navigation -->
+            <header class="glass-effect border-b border-slate-700">
+                <div class="flex items-center justify-between h-16 px-4">
+                    <div class="flex items-center">
+                        <button id="sidebarToggle" class="lg:hidden text-slate-300 hover:text-white mr-4">
+                            <i class="fas fa-bars text-xl"></i>
+                        </button>
+                        <h1 class="text-2xl font-bold text-white" id="pageTitle">Dashboard</h1>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="relative">
+                            <button class="text-slate-300 hover:text-white" onclick="loadStats()">
+                                <i class="fas fa-sync-alt text-xl"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <main class="p-6" id="mainContent">
+                <!-- Dashboard Section -->
+                <div id="dashboardSection">
+                    <!-- Stats Overview -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8" id="statsContainer">
+                        <!-- Stats will be loaded dynamically -->
+                    </div>
+
+                    <!-- Recent Files & Quick Actions -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Recent Files -->
+                        <div class="lg:col-span-2">
+                            <div class="glass-effect rounded-xl p-6 border border-slate-700/50">
+                                <div class="flex items-center justify-between mb-6">
+                                    <h2 class="text-xl font-bold text-white">Recent Files</h2>
+                                    <a href="#" class="text-cyan-400 hover:text-cyan-300 text-sm font-medium" onclick="showSection('files')">View all</a>
+                                </div>
+                                <div class="space-y-4" id="recentFilesContainer">
+                                    <!-- Files will be loaded dynamically -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Actions -->
+                        <div>
+                            <div class="glass-effect rounded-xl p-6 border border-slate-700/50 mb-6">
+                                <h2 class="text-xl font-bold text-white mb-6">Quick Actions</h2>
+                                <div class="space-y-4">
+                                    <button class="w-full flex items-center justify-between p-4 bg-cyan-500/10 hover:bg-cyan-500/20 rounded-lg border border-cyan-500/30 transition-all duration-200 group" onclick="showSection('upload')">
+                                        <div class="flex items-center">
+                                            <div class="w-10 h-10 bg-cyan-500 rounded-lg flex items-center justify-center mr-3 group-hover:scale-110 transition-transform">
+                                                <i class="fas fa-upload text-white"></i>
+                                            </div>
+                                            <span class="font-medium text-white">Upload Files</span>
+                                        </div>
+                                        <i class="fas fa-chevron-right text-cyan-400"></i>
+                                    </button>
+
+                                    <button class="w-full flex items-center justify-between p-4 bg-purple-500/10 hover:bg-purple-500/20 rounded-lg border border-purple-500/30 transition-all duration-200 group" onclick="showSection('files')">
+                                        <div class="flex items-center">
+                                            <div class="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center mr-3 group-hover:scale-110 transition-transform">
+                                                <i class="fas fa-search text-white"></i>
+                                            </div>
+                                            <span class="font-medium text-white">Analyze Files</span>
+                                        </div>
+                                        <i class="fas fa-chevron-right text-purple-400"></i>
+                                    </button>
+
+                                    <button class="w-full flex items-center justify-between p-4 bg-green-500/10 hover:bg-green-500/20 rounded-lg border border-green-500/30 transition-all duration-200 group" onclick="showSection('analytics')">
+                                        <div class="flex items-center">
+                                            <div class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center mr-3 group-hover:scale-110 transition-transform">
+                                                <i class="fas fa-chart-bar text-white"></i>
+                                            </div>
+                                            <span class="font-medium text-white">View Analytics</span>
+                                        </div>
+                                        <i class="fas fa-chevron-right text-green-400"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Security Status -->
+                            <div class="glass-effect rounded-xl p-6 border border-slate-700/50">
+                                <h2 class="text-xl font-bold text-white mb-4">Security Status</h2>
+                                <div class="space-y-4" id="securityStatusContainer">
+                                    <!-- Security status will be loaded dynamically -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Upload Section -->
+                <div id="uploadSection" class="hidden">
+                    <div class="glass-effect rounded-xl p-6 border border-slate-700/50">
+                        <h2 class="text-xl font-bold text-white mb-6">Upload Files for Analysis</h2>
+                        <div id="dropZone" class="border-2 border-dashed border-slate-600 rounded-xl p-8 text-center mb-6 transition-all duration-300 hover:border-cyan-500 hover:bg-cyan-500/5 cursor-pointer">
+                            <i class="fas fa-cloud-upload-alt text-4xl text-slate-400 mb-4"></i>
+                            <p class="text-slate-300 mb-2">Drag and drop your files here or click to browse</p>
+                            <p class="text-slate-400 text-sm mb-4">Supports: Images, PDFs, Documents, Spreadsheets (Max 100MB)</p>
+                            <input type="file" id="fileInput" class="hidden" multiple>
+                            <button onclick="document.getElementById('fileInput').click()" class="bg-cyan-600 hover:bg-cyan-500 text-white px-6 py-2 rounded-lg transition-colors">
+                                Select Files
+                            </button>
+                        </div>
+                        <div id="uploadProgress" class="hidden space-y-4"></div>
+                    </div>
+                </div>
+
+                <!-- Files Section -->
+                <div id="filesSection" class="hidden">
+                    <div class="glass-effect rounded-xl p-6 border border-slate-700/50">
+                        <div class="flex items-center justify-between mb-6">
+                            <h2 class="text-xl font-bold text-white">File Browser</h2>
+                            <div class="flex space-x-4">
+                                <input type="text" id="searchFiles" placeholder="Search files..." class="bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-2 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                                <button onclick="loadFiles()" class="bg-cyan-600 hover:bg-cyan-500 text-white px-4 py-2 rounded-lg transition-colors">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="filesContainer" class="space-y-4">
+                            <!-- Files will be loaded dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analytics Section -->
+                <div id="analyticsSection" class="hidden">
+                    <div class="glass-effect rounded-xl p-6 border border-slate-700/50">
+                        <h2 class="text-xl font-bold text-white mb-6">Analytics & Reports</h2>
+                        <div id="analyticsContainer">
+                            <!-- Analytics will be loaded dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // API Configuration
+        const API_BASE = 'http://localhost:5000/api';
+        let currentUser = null;
+        let authToken = null;
+
+        // DOM Elements
+        const loginScreen = document.getElementById('loginScreen');
+        const appScreen = document.getElementById('appScreen');
+        const loginForm = document.getElementById('loginForm');
+        const loginButton = document.getElementById('loginButton');
+        const loginButtonText = document.getElementById('loginButtonText');
+        const loginSpinner = document.getElementById('loginSpinner');
+        const loginError = document.getElementById('loginError');
+        const errorText = document.getElementById('errorText');
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('password');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebar = document.getElementById('sidebar');
+        const logoutButton = document.getElementById('logoutButton');
+        const fileInput = document.getElementById('fileInput');
+
+        // API Helper Functions
+        async function apiCall(endpoint, options = {}) {
+            const url = `${API_BASE}${endpoint}`;
+            const config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...options.headers
+                },
+                ...options
+            };
+
+            if (authToken) {
+                config.headers['Authorization'] = `Bearer ${authToken}`;
+            }
+
+            try {
+                const response = await fetch(url, config);
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'API request failed');
+                }
+                
+                return data;
+            } catch (error) {
+                console.error('API call failed:', error);
+                throw error;
+            }
+        }
+
+        // Toggle password visibility
+        togglePassword.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+        });
+
+        // Login form submission
+        loginForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            // Show loading state
+            loginButtonText.classList.add('hidden');
+            loginSpinner.classList.remove('hidden');
+            loginButton.disabled = true;
+            loginError.classList.add('hidden');
+            
+            try {
+                const response = await apiCall('/auth/login', {
+                    method: 'POST',
+                    body: JSON.stringify({ username, password })
+                });
+                
+                // Store token and user info
+                authToken = response.token;
+                currentUser = response.user;
+                
+                // Update UI with user's actual information
+                const displayName = currentUser.full_name || currentUser.username;
+                const displayOrg = currentUser.organization || currentUser.role;
+                document.getElementById('userName').textContent = displayName;
+                document.getElementById('userRole').textContent = displayOrg;
+                document.getElementById('userAvatar').textContent = displayName.charAt(0).toUpperCase();
+                
+                // Show main app
+                loginScreen.classList.add('hidden');
+                appScreen.classList.remove('hidden');
+                
+                // Load initial data
+                loadStats();
+                loadRecentFiles();
+                
+            } catch (error) {
+                // Failed login
+                errorText.textContent = error.message || 'Login failed';
+                loginError.classList.remove('hidden');
+                
+                // Reset loading state
+                loginButtonText.classList.remove('hidden');
+                loginSpinner.classList.add('hidden');
+                loginButton.disabled = false;
+            }
+        });
+
+        // Toggle between login and register forms
+        function showAuthForm(formType) {
+            const loginTab = document.getElementById('loginTab');
+            const registerTab = document.getElementById('registerTab');
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            
+            if (formType === 'login') {
+                loginForm.classList.remove('hidden');
+                registerForm.classList.add('hidden');
+                loginTab.classList.add('bg-gradient-to-r', 'from-cyan-600', 'to-blue-600', 'text-white');
+                loginTab.classList.remove('text-slate-400');
+                registerTab.classList.remove('bg-gradient-to-r', 'from-cyan-600', 'to-blue-600', 'text-white');
+                registerTab.classList.add('text-slate-400');
+            } else {
+                registerForm.classList.remove('hidden');
+                loginForm.classList.add('hidden');
+                registerTab.classList.add('bg-gradient-to-r', 'from-cyan-600', 'to-blue-600', 'text-white');
+                registerTab.classList.remove('text-slate-400');
+                loginTab.classList.remove('bg-gradient-to-r', 'from-cyan-600', 'to-blue-600', 'text-white');
+                loginTab.classList.add('text-slate-400');
+            }
+        }
+
+        // Password visibility toggles for registration
+        document.getElementById('toggleRegPassword').addEventListener('click', function() {
+            const regPassword = document.getElementById('regPassword');
+            const type = regPassword.getAttribute('type') === 'password' ? 'text' : 'password';
+            regPassword.setAttribute('type', type);
+            this.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+        });
+
+        document.getElementById('toggleConfirmPassword').addEventListener('click', function() {
+            const confirmPassword = document.getElementById('regConfirmPassword');
+            const type = confirmPassword.getAttribute('type') === 'password' ? 'text' : 'password';
+            confirmPassword.setAttribute('type', type);
+            this.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+        });
+
+        // Register form submission
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('regUsername').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            const confirmPassword = document.getElementById('regConfirmPassword').value;
+            const fullName = document.getElementById('regFullName').value;
+            const organization = document.getElementById('regOrganization').value;
+            const phone = document.getElementById('regPhone').value;
+            
+            const registerButton = document.getElementById('registerButton');
+            const registerButtonText = document.getElementById('registerButtonText');
+            const registerSpinner = document.getElementById('registerSpinner');
+            const registerError = document.getElementById('registerError');
+            const registerErrorText = document.getElementById('registerErrorText');
+            const registerSuccess = document.getElementById('registerSuccess');
+            
+            // Hide previous messages
+            registerError.classList.add('hidden');
+            registerSuccess.classList.add('hidden');
+            
+            // Validate passwords match
+            if (password !== confirmPassword) {
+                registerErrorText.textContent = 'Passwords do not match';
+                registerError.classList.remove('hidden');
+                return;
+            }
+            
+            // Show loading state
+            registerButtonText.classList.add('hidden');
+            registerSpinner.classList.remove('hidden');
+            registerButton.disabled = true;
+            
+            try {
+                const response = await apiCall('/auth/register', {
+                    method: 'POST',
+                    body: JSON.stringify({ 
+                        username, 
+                        email, 
+                        password,
+                        full_name: fullName,
+                        organization,
+                        phone
+                    })
+                });
+                
+                // Show success message
+                registerSuccess.classList.remove('hidden');
+                document.getElementById('registerForm').reset();
+                
+                // Switch to login form after 2 seconds
+                setTimeout(() => {
+                    showAuthForm('login');
+                    registerSuccess.classList.add('hidden');
+                }, 2000);
+                
+            } catch (error) {
+                // Show error message
+                registerErrorText.textContent = error.message || 'Registration failed';
+                registerError.classList.remove('hidden');
+            } finally {
+                // Reset loading state
+                registerButtonText.classList.remove('hidden');
+                registerSpinner.classList.add('hidden');
+                registerButton.disabled = false;
+            }
+        });
+
+        // Toggle sidebar on mobile
+        sidebarToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('-translate-x-full');
+        });
+
+        // Logout functionality
+        logoutButton.addEventListener('click', function() {
+            authToken = null;
+            currentUser = null;
+            appScreen.classList.add('hidden');
+            loginScreen.classList.remove('hidden');
+            
+            // Reset form
+            loginForm.reset();
+            loginError.classList.add('hidden');
+            loginButtonText.classList.remove('hidden');
+            loginSpinner.classList.add('hidden');
+            loginButton.disabled = false;
+        });
+
+        // Section navigation
+        function showSection(sectionName) {
+            // Hide all sections
+            document.getElementById('dashboardSection').classList.add('hidden');
+            document.getElementById('uploadSection').classList.add('hidden');
+            document.getElementById('filesSection').classList.add('hidden');
+            document.getElementById('analyticsSection').classList.add('hidden');
+            
+            // Show selected section
+            document.getElementById(sectionName + 'Section').classList.remove('hidden');
+            
+            // Update page title
+            const titles = {
+                'dashboard': 'Dashboard',
+                'upload': 'Upload Files',
+                'files': 'File Browser',
+                'analytics': 'Analytics'
+            };
+            document.getElementById('pageTitle').textContent = titles[sectionName];
+            
+            // Load section data
+            if (sectionName === 'files') {
+                loadFiles();
+            } else if (sectionName === 'analytics') {
+                loadAnalytics();
+            }
+        }
+
+        // Load statistics
+        async function loadStats() {
+            try {
+                const stats = await apiCall('/stats');
+                renderStats(stats);
+                renderSecurityStatus(stats);
+            } catch (error) {
+                console.error('Failed to load stats:', error);
+            }
+        }
+
+        function renderStats(stats) {
+            const statsContainer = document.getElementById('statsContainer');
+            statsContainer.innerHTML = `
+                <div class="glass-effect rounded-xl p-6 border border-slate-700/50 hover:border-slate-600/50 transition-all duration-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-slate-400 text-sm font-medium">Total Files</p>
+                            <p class="text-2xl font-bold text-white mt-1">${stats.total_files}</p>
+                            <p class="text-slate-500 text-sm mt-1">${stats.storage_used_formatted}</p>
+                        </div>
+                        <div class="p-3 rounded-lg bg-cyan-500/20">
+                            <i class="fas fa-file text-cyan-400 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-effect rounded-xl p-6 border border-slate-700/50 hover:border-slate-600/50 transition-all duration-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-slate-400 text-sm font-medium">Security Score</p>
+                            <p class="text-2xl font-bold text-white mt-1">${Math.round((stats.security_distribution.high / stats.total_files) * 100)}%</p>
+                            <p class="text-slate-500 text-sm mt-1">High safety files</p>
+                        </div>
+                        <div class="p-3 rounded-lg bg-green-500/20">
+                            <i class="fas fa-shield-alt text-green-400 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-effect rounded-xl p-6 border border-slate-700/50 hover:border-slate-600/50 transition-all duration-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-slate-400 text-sm font-medium">Warnings</p>
+                            <p class="text-2xl font-bold text-white mt-1">${stats.security_distribution.low + stats.security_distribution.medium}</p>
+                            <p class="text-slate-500 text-sm mt-1">Need attention</p>
+                        </div>
+                        <div class="p-3 rounded-lg bg-yellow-500/20">
+                            <i class="fas fa-exclamation-triangle text-yellow-400 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-effect rounded-xl p-6 border border-slate-700/50 hover:border-slate-600/50 transition-all duration-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-slate-400 text-sm font-medium">Active Users</p>
+                            <p class="text-2xl font-bold text-white mt-1">${stats.active_users}</p>
+                            <p class="text-slate-500 text-sm mt-1">Currently active</p>
+                        </div>
+                        <div class="p-3 rounded-lg bg-purple-500/20">
+                            <i class="fas fa-users text-purple-400 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Render Security Status
+        function renderSecurityStatus(stats) {
+            const container = document.getElementById('securityStatusContainer');
+            const total = stats.total_files || 1;
+            const highPercent = Math.round((stats.security_distribution.high / total) * 100);
+            const mediumPercent = Math.round((stats.security_distribution.medium / total) * 100);
+            const lowPercent = Math.round((stats.security_distribution.low / total) * 100);
+            
+            container.innerHTML = `
+                <div class="space-y-3">
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-sm text-green-400 font-medium flex items-center">
+                                <i class="fas fa-shield-alt mr-2"></i> High Security
+                            </span>
+                            <span class="text-white text-sm font-bold">${stats.security_distribution.high}</span>
+                        </div>
+                        <div class="w-full bg-slate-700 rounded-full h-2">
+                            <div class="security-high h-2 rounded-full transition-all duration-1000" style="width: ${highPercent}%"></div>
+                        </div>
+                        <span class="text-xs text-slate-400">${highPercent}%</span>
+                    </div>
+                    
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-sm text-yellow-400 font-medium flex items-center">
+                                <i class="fas fa-exclamation-circle mr-2"></i> Medium Risk
+                            </span>
+                            <span class="text-white text-sm font-bold">${stats.security_distribution.medium}</span>
+                        </div>
+                        <div class="w-full bg-slate-700 rounded-full h-2">
+                            <div class="security-medium h-2 rounded-full transition-all duration-1000" style="width: ${mediumPercent}%"></div>
+                        </div>
+                        <span class="text-xs text-slate-400">${mediumPercent}%</span>
+                    </div>
+                    
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-sm text-red-400 font-medium flex items-center">
+                                <i class="fas fa-exclamation-triangle mr-2"></i> Low Security
+                            </span>
+                            <span class="text-white text-sm font-bold">${stats.security_distribution.low}</span>
+                        </div>
+                        <div class="w-full bg-slate-700 rounded-full h-2">
+                            <div class="security-low h-2 rounded-full transition-all duration-1000" style="width: ${lowPercent}%"></div>
+                        </div>
+                        <span class="text-xs text-slate-400">${lowPercent}%</span>
+                    </div>
+                </div>
+                
+                <div class="mt-4 p-3 bg-slate-800/50 rounded-lg border border-slate-700">
+                    <div class="flex items-center justify-between">
+                        <span class="text-slate-300 text-sm">Overall Status:</span>
+                        <span class="${highPercent >= 70 ? 'text-green-400' : highPercent >= 40 ? 'text-yellow-400' : 'text-red-400'} font-bold text-sm">
+                            ${highPercent >= 70 ? 'Excellent' : highPercent >= 40 ? 'Good' : 'Needs Attention'}
+                        </span>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Load recent files
+        async function loadRecentFiles() {
+            try {
+                const filesData = await apiCall('/files?limit=5');
+                renderRecentFiles(filesData.files);
+            } catch (error) {
+                console.error('Failed to load recent files:', error);
+            }
+        }
+
+        function renderRecentFiles(files) {
+            const container = document.getElementById('recentFilesContainer');
+            
+            if (files.length === 0) {
+                container.innerHTML = '<p class="text-slate-400 text-center">No files uploaded yet</p>';
+                return;
+            }
+            
+            container.innerHTML = files.map(file => `
+                <div class="file-card flex items-center p-4 bg-slate-800/30 rounded-lg border border-slate-700/50">
+                    <div class="w-12 h-12 bg-cyan-500/20 rounded-lg flex items-center justify-center mr-4">
+                        <i class="fas fa-file text-cyan-400 text-xl"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-medium text-white">${file.filename}</h3>
+                        <p class="text-slate-400 text-sm">${file.file_type} • ${(file.file_size / 1024 / 1024).toFixed(2)} MB</p>
+                    </div>
+                    <div class="text-right">
+                        <div class="${getSecurityClass(file.security_score)} text-white text-xs font-bold px-2 py-1 rounded-full">${file.security_score}%</div>
+                        <p class="text-slate-400 text-sm mt-1">${new Date(file.upload_time).toLocaleDateString()}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Load all files
+        async function loadFiles() {
+            try {
+                const searchQuery = document.getElementById('searchFiles').value;
+                const endpoint = searchQuery ? `/files?search=${encodeURIComponent(searchQuery)}` : '/files';
+                const filesData = await apiCall(endpoint);
+                renderFiles(filesData.files);
+            } catch (error) {
+                console.error('Failed to load files:', error);
+            }
+        }
+
+        function renderFiles(files) {
+            const container = document.getElementById('filesContainer');
+            
+            if (files.length === 0) {
+                container.innerHTML = '<p class="text-slate-400 text-center">No files found</p>';
+                return;
+            }
+            
+            container.innerHTML = files.map(file => `
+                <div class="file-card flex items-center p-4 bg-slate-800/30 rounded-lg border border-slate-700/50">
+                    <div class="w-12 h-12 bg-cyan-500/20 rounded-lg flex items-center justify-center mr-4">
+                        <i class="fas fa-file text-cyan-400 text-xl"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-medium text-white">${file.filename}</h3>
+                        <p class="text-slate-400 text-sm">${file.file_type} • ${(file.file_size / 1024 / 1024).toFixed(2)} MB</p>
+                        ${file.warnings && file.warnings.length > 0 ? 
+                            `<p class="text-yellow-400 text-sm mt-1"><i class="fas fa-exclamation-triangle"></i> ${file.warnings.length} warning(s)</p>` : 
+                            ''}
+                    </div>
+                    <div class="text-right">
+                        <div class="${getSecurityClass(file.security_score)} text-white text-xs font-bold px-2 py-1 rounded-full">${file.security_score}%</div>
+                        <p class="text-slate-400 text-sm mt-1">${new Date(file.upload_time).toLocaleDateString()}</p>
+                        <div class="flex space-x-2 mt-2">
+                            <button onclick="downloadFile('${file._id}')" class="text-cyan-400 hover:text-cyan-300">
+                                <i class="fas fa-download"></i>
+                            </button>
+                            <button onclick="deleteFile('${file._id}')" class="text-red-400 hover:text-red-300">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // File operations
+        async function downloadFile(fileId) {
+            try {
+                const response = await fetch(`${API_BASE}/files/${fileId}/download`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'downloaded_file';
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                }
+            } catch (error) {
+                console.error('Download failed:', error);
+                alert('Download failed: ' + error.message);
+            }
+        }
+
+        async function deleteFile(fileId) {
+            if (confirm('Are you sure you want to delete this file?')) {
+                try {
+                    await apiCall(`/files/${fileId}`, { method: 'DELETE' });
+                    loadFiles(); // Refresh the file list
+                    loadRecentFiles(); // Refresh recent files
+                } catch (error) {
+                    console.error('Delete failed:', error);
+                    alert('Delete failed: ' + error.message);
+                }
+            }
+        }
+
+        // File upload handling
+        fileInput.addEventListener('change', handleFileUpload);
+
+        // Drag and Drop functionality
+        const dropZone = document.getElementById('dropZone');
+
+        // Prevent default drag behaviors
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+            document.body.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        // Highlight drop zone when dragging over it
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => {
+                dropZone.classList.add('border-cyan-500', 'bg-cyan-500/10');
+                dropZone.classList.remove('border-slate-600');
+            }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => {
+                dropZone.classList.remove('border-cyan-500', 'bg-cyan-500/10');
+                dropZone.classList.add('border-slate-600');
+            }, false);
+        });
+
+        // Handle dropped files
+        dropZone.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleDroppedFiles(files);
+        }, false);
+
+        // Click to upload
+        dropZone.addEventListener('click', (e) => {
+            if (e.target.tagName !== 'BUTTON') {
+                fileInput.click();
+            }
+        });
+
+        async function handleFileUpload(event) {
+            const files = event.target.files;
+            processFiles(files);
+        }
+
+        async function handleDroppedFiles(files) {
+            processFiles(files);
+        }
+
+        async function processFiles(files) {
+            const progressContainer = document.getElementById('uploadProgress');
+            progressContainer.classList.remove('hidden');
+            progressContainer.innerHTML = '';
+
+            for (let file of files) {
+                await uploadSingleFile(file, progressContainer);
+            }
+
+            // Clear file input
+            fileInput.value = '';
+
+            // Refresh file lists after upload
+            setTimeout(() => {
+                loadFiles();
+                loadRecentFiles();
+                loadStats();
+            }, 1000);
+        }
+
+        function uploadSingleFile(file, progressContainer) {
+            return new Promise((resolve, reject) => {
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const progressItem = document.createElement('div');
+                progressItem.className = 'flex items-center justify-between p-4 bg-slate-800/30 rounded-lg';
+                progressItem.innerHTML = `
+                    <div class="flex items-center">
+                        <i class="fas fa-file text-cyan-400 mr-3"></i>
+                        <span class="text-white">${file.name}</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <div class="w-24 bg-slate-700 rounded-full h-2">
+                            <div class="bg-cyan-500 h-2 rounded-full progress-bar transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                        <span class="text-slate-400 text-sm percent-text">0%</span>
+                    </div>
+                `;
+                progressContainer.appendChild(progressItem);
+
+                const progressBar = progressItem.querySelector('.progress-bar');
+                const percentText = progressItem.querySelector('.percent-text');
+
+                // Use XMLHttpRequest for progress tracking
+                const xhr = new XMLHttpRequest();
+
+                // Track upload progress
+                xhr.upload.addEventListener('progress', (e) => {
+                    if (e.lengthComputable) {
+                        const percentComplete = Math.round((e.loaded / e.total) * 100);
+                        progressBar.style.width = percentComplete + '%';
+                        percentText.textContent = percentComplete + '%';
+                    }
+                });
+
+                // Handle completion
+                xhr.addEventListener('load', () => {
+                    if (xhr.status === 200 || xhr.status === 201) {
+                        progressBar.style.width = '100%';
+                        percentText.textContent = '✓ Complete';
+                        percentText.classList.remove('text-slate-400');
+                        percentText.classList.add('text-green-400');
+                        progressItem.classList.add('bg-green-500/10');
+                        resolve();
+                    } else {
+                        progressBar.classList.remove('bg-cyan-500');
+                        progressBar.classList.add('bg-red-500');
+                        percentText.textContent = '✗ Failed';
+                        percentText.classList.remove('text-slate-400');
+                        percentText.classList.add('text-red-400');
+                        
+                        try {
+                            const result = JSON.parse(xhr.responseText);
+                            console.error('Upload failed:', result.error);
+                        } catch (e) {
+                            console.error('Upload failed:', xhr.statusText);
+                        }
+                        reject(new Error('Upload failed'));
+                    }
+                });
+
+                // Handle errors
+                xhr.addEventListener('error', () => {
+                    progressBar.classList.remove('bg-cyan-500');
+                    progressBar.classList.add('bg-red-500');
+                    percentText.textContent = '✗ Error';
+                    percentText.classList.remove('text-slate-400');
+                    percentText.classList.add('text-red-400');
+                    console.error('Upload error for:', file.name);
+                    reject(new Error('Upload error'));
+                });
+
+                // Send the request
+                xhr.open('POST', `${API_BASE}/upload`);
+                xhr.setRequestHeader('Authorization', `Bearer ${authToken}`);
+                xhr.send(formData);
+            });
+        }
+
+        // Analytics
+        async function loadAnalytics() {
+            try {
+                const stats = await apiCall('/stats');
+                renderAnalytics(stats);
+            } catch (error) {
+                console.error('Failed to load analytics:', error);
+            }
+        }
+
+        function renderAnalytics(stats) {
+            const container = document.getElementById('analyticsContainer');
+            
+            const securityPercentage = Math.round((stats.security_distribution.high / stats.total_files) * 100) || 0;
+            
+            container.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div class="bg-slate-800/30 rounded-lg p-6">
+                        <h3 class="text-lg font-bold text-white mb-4">Security Distribution</h3>
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <span class="text-green-400">High Security</span>
+                                <span class="text-white">${stats.security_distribution.high} files</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-yellow-400">Medium Security</span>
+                                <span class="text-white">${stats.security_distribution.medium} files</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-red-400">Low Security</span>
+                                <span class="text-white">${stats.security_distribution.low} files</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-slate-800/30 rounded-lg p-6">
+                        <h3 class="text-lg font-bold text-white mb-4">File Type Distribution</h3>
+                        <div class="space-y-3">
+                            ${stats.type_distribution.map(type => `
+                                <div class="flex justify-between">
+                                    <span class="text-slate-300">${type._id}</span>
+                                    <span class="text-white">${type.count} files</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-slate-800/30 rounded-lg p-6">
+                    <h3 class="text-lg font-bold text-white mb-4">Overall Security Score</h3>
+                    <div class="w-full bg-slate-700 rounded-full h-4">
+                        <div class="bg-gradient-to-r from-cyan-500 to-blue-500 h-4 rounded-full progress-bar" style="width: ${securityPercentage}%"></div>
+                    </div>
+                    <p class="text-center text-white mt-2">${securityPercentage}% Secure</p>
+                </div>
+            `;
+        }
+
+        // Helper function to get security class
+        function getSecurityClass(score) {
+            if (score >= 80) return 'security-high';
+            if (score >= 50) return 'security-medium';
+            return 'security-low';
+        }
+
+        // Initialize progress bar animations
+        document.addEventListener('DOMContentLoaded', function() {
+            const progressBars = document.querySelectorAll('.progress-bar');
+            progressBars.forEach(bar => {
+                const width = bar.style.width;
+                bar.style.width = '0';
+                setTimeout(() => {
+                    bar.style.width = width;
+                }, 300);
+            });
+        });
+
+        // Add hover effects to file cards
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileCards = document.querySelectorAll('.file-card');
+            fileCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-5px)';
+                    this.style.boxShadow = '0 10px 25px -5px rgba(0, 0, 0, 0.3)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = 'none';
+                });
+            });
+        });
+    </script>
+</body>
+</html>
